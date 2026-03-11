@@ -1,75 +1,75 @@
-# 🏠 House Price Forecasting — Multiple Linear Regression
+# 🏠 Pronóstico del Precio de una Casa — Regresión Lineal Múltiple
 
-> Predicting house sale prices using OLS solved analytically via matrix algebra, validated against `statsmodels`.
+> Predicción del precio de venta de casas usando OLS resuelto analíticamente mediante álgebra matricial, validado contra `statsmodels`.
 
 ---
 
-## 📌 Overview
+## 📌 Descripción General
 
-This project builds a **Multiple Linear Regression model** to forecast residential sale prices based on observable property features. The core goal is not just to predict, but to **understand the math behind the algorithm** — solving OLS analytically using the matrix formula:
+Este proyecto construye un modelo de **Regresión Lineal Múltiple** para pronosticar el precio de venta de inmuebles a partir de sus características observables. El objetivo principal no es solo predecir, sino **entender las matemáticas detrás del algoritmo** — resolviendo OLS analíticamente con la fórmula matricial:
 
 $$\hat{\beta} = (X'X)^{-1}X'Y$$
 
-Results are then validated against `statsmodels.OLS` to confirm mathematical equivalence.
+Los resultados se validan contra `statsmodels.OLS` para confirmar equivalencia matemática exacta.
 
 ---
 
-## 🎯 Target Variable
+## 🎯 Variable Objetivo
 
-| Variable | Description |
+| Variable | Descripción |
 |----------|-------------|
-| `price` | Sale price of a house in USD |
+| `price` | Precio de venta de una casa en dólares |
 
 ---
 
-## 📊 Dataset & Feature Selection
+## 📊 Dataset y Selección de Variables
 
-Starting from the raw dataset, the following variables were **excluded upfront**:
+Las siguientes variables fueron **excluidas desde el inicio**:
 
-| Variable | Reason |
+| Variable | Motivo |
 |----------|--------|
-| `id`, `date` | Identifiers with no predictive value |
-| `zipcode` | Categorical with no linear scale |
-| `lat`, `long` | Raw coordinates — no direct linear relationship |
-| `sqft_above` | Collinear with `sqft_living` |
-| `yr_renovated` | ~96% of values are zero |
+| `id`, `date` | Identificadores sin valor predictivo |
+| `zipcode` | Categórica sin escala lineal |
+| `lat`, `long` | Coordenadas crudas sin relación lineal directa |
+| `sqft_above` | Colineal con `sqft_living` |
+| `yr_renovated` | ~96% de valores en cero |
 
-The **11 candidate variables** that entered the statistical selection process:
+Las **11 variables candidatas** que ingresaron al proceso de selección estadística:
 
-| Variable | Description |
+| Variable | Descripción |
 |----------|-------------|
-| `bedrooms` | Number of bedrooms |
-| `bathrooms` | Number of bathrooms |
-| `sqft_living` | Living area (ft²) — highest individual correlation with price |
-| `sqft_lot` | Lot size (ft²) |
-| `floors` | Number of floors |
-| `waterfront` | Waterfront view (0/1) |
-| `view` | View quality (0–4) |
-| `condition` | Property condition (1–5) |
-| `grade` | Construction quality (1–13) |
-| `sqft_basement` | Basement area (ft²) |
-| `yr_built` | Year built |
+| `bedrooms` | Número de habitaciones |
+| `bathrooms` | Número de baños |
+| `sqft_living` | Superficie habitable (ft²) — mayor correlación individual con el precio |
+| `sqft_lot` | Superficie del terreno (ft²) |
+| `floors` | Número de pisos |
+| `waterfront` | Vista al agua (0/1) |
+| `view` | Calidad de la vista (0–4) |
+| `condition` | Estado de conservación (1–5) |
+| `grade` | Calidad de construcción (1–13) |
+| `sqft_basement` | Superficie del sótano (ft²) |
+| `yr_built` | Año de construcción |
 
 ---
 
-## 🔁 Backward Elimination (α = 0.05)
+## 🔁 Eliminación Hacia Atrás (α = 0.05)
 
-Starting from the full 11-variable model, variables were iteratively removed if their p-value exceeded **0.05**.
+Se partió del modelo completo con 11 variables y se eliminaron iterativamente aquellas con p-value superior a **0.05**.
 
-| Iteration | Action |
+| Iteración | Acción |
 |-----------|--------|
-| **1** | Remove `sqft_basement` — p-value = 0.3967 ❌ |
-| **2** | All remaining variables significant (p < 0.0001) ✅ — **STOP** |
+| **1** | Eliminar `sqft_basement` — p-value = 0.3967 ❌ |
+| **2** | Todas las variables restantes son significativas (p < 0.0001) ✅ — **PARAR** |
 
-**Final model: 10 variables**, all with p-value < 0.0001.
+**Modelo final: 10 variables**, todas con p-value < 0.0001.
 
 ---
 
-## 📐 Final Model Coefficients
+## 📐 Coeficientes del Modelo Final
 
-| Variable | Coefficient | t-stat | 95% CI |
+| Variable | Coeficiente | t-stat | IC 95% |
 |----------|-------------|--------|--------|
-| Intercept | 6,216,011.72 | 41.58 | [5,922,968 — 6,509,054] |
+| Intercepto | 6,216,011.72 | 41.58 | [5,922,968 — 6,509,054] |
 | `bedrooms` | −34,441.54 | −14.90 | [−38,972 — −29,910] |
 | `bathrooms` | 44,274.79 | 10.79 | [36,232 — 52,317] |
 | `sqft_living` | 162.91 | 48.50 | [156.33 — 169.49] |
@@ -83,67 +83,67 @@ Starting from the full 11-variable model, variables were iteratively removed if 
 
 ---
 
-## ✅ Model Evaluation
+## ✅ Evaluación del Modelo
 
-| Metric | Value |
-|--------|-------|
-| R² — Training (70%) | **65.1%** |
-| R² — Test (30%) | **65.3%** |
-| F-statistic | **2,566** |
-| Final variables | **10** |
+| Métrica | Valor |
+|---------|-------|
+| R² — Entrenamiento (70%) | **65.1%** |
+| R² — Prueba (30%) | **65.3%** |
+| Estadístico F | **2,566** |
+| Variables finales | **10** |
 
-The near-identical R² between training and test sets confirms **no overfitting**.  
-Residuals on the test set are approximately normally distributed, supporting model assumptions.
-
----
-
-## 🔬 Matrix vs. OLS Validation
-
-Coefficients computed manually with NumPy using β = (X'X)⁻¹X'Y are **identical** to those produced by `statsmodels.OLS` (difference < 10⁻⁴ across all variables), confirming a deep understanding of the mathematical foundations of linear regression.
+El R² casi idéntico entre entrenamiento y prueba confirma que **no hay sobreajuste**.  
+Los residuales sobre el conjunto de prueba siguen una distribución aproximadamente normal, validando los supuestos del modelo.
 
 ---
 
-## 💡 Key Findings
+## 🔬 Validación: Matricial vs. OLS Automatizado
 
-- **Quality > Size**: While `sqft_living` matters, `waterfront` (+$563K) and `grade` (+$123K per level) have far greater economic impact.
-- **Year built is a strong depressor**: Each additional year of age reduces estimated price by ~$3,577.
-- **Bedrooms have a negative coefficient** when controlling for other variables — a larger number of rooms in a fixed living area signals smaller individual spaces.
-- **`sqft_basement` adds no value** once other size variables are included — removed in iteration 1.
+Los coeficientes calculados manualmente con NumPy mediante β = (X'X)⁻¹X'Y son **idénticos** a los producidos por `statsmodels.OLS` (diferencia < 10⁻⁴ en todas las variables), confirmando comprensión profunda de los fundamentos matemáticos de la regresión lineal.
 
 ---
 
-## 🛠️ Tech Stack
+## 💡 Hallazgos Clave
+
+- **La calidad supera al tamaño**: aunque `sqft_living` importa, `waterfront` (+$563K) y `grade` (+$123K por nivel) tienen un impacto económico mucho mayor.
+- **El año de construcción es un fuerte depresor**: cada año adicional de antigüedad reduce el precio estimado en ~$3,577.
+- **Las habitaciones tienen coeficiente negativo** al controlar las demás variables — más cuartos en una superficie fija implica espacios más pequeños.
+- **`sqft_basement` no aporta valor** una vez incluidas las demás variables de tamaño — eliminada en la iteración 1.
+
+---
+
+## 🛠️ Stack Tecnológico
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)
-![NumPy](https://img.shields.io/badge/NumPy-matrix_algebra-013243?logo=numpy)
-![Pandas](https://img.shields.io/badge/Pandas-data_wrangling-150458?logo=pandas)
-![statsmodels](https://img.shields.io/badge/statsmodels-OLS_validation-green)
-![Matplotlib](https://img.shields.io/badge/Matplotlib-visualization-orange)
+![NumPy](https://img.shields.io/badge/NumPy-álgebra_matricial-013243?logo=numpy)
+![Pandas](https://img.shields.io/badge/Pandas-manipulación_de_datos-150458?logo=pandas)
+![statsmodels](https://img.shields.io/badge/statsmodels-validación_OLS-green)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-visualización-orange)
 
 ---
 
-## 📁 Project Structure
+## 📁 Estructura del Proyecto
 
 ```
 house-price-regression/
 │
 ├── data/
-│   └── kc_house_data.csv          # King County house sales dataset
+│   └── kc_house_data.csv              # Dataset de ventas de casas King County
 │
 ├── notebooks/
-│   └── house_price_regression.ipynb  # Full analysis & model development
+│   └── pronostico_precio_casa.ipynb   # Análisis completo y desarrollo del modelo
 │
 ├── outputs/
-│   └── Resumen_Pronostico_Casa.pdf   # Project summary report
+│   └── Resumen_Pronostico_Casa.pdf    # Reporte resumen del proyecto
 │
 └── README.md
 ```
 
 ---
 
-## 👤 Author
+## 👤 Autor
 
 **Ulises Abraham Ortiz Sánchez**  
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-uliabraham-blue?logo=linkedin)](https://linkedin.com/in/uliabraham)
 [![Kaggle](https://img.shields.io/badge/Kaggle-uliabraham-20BEFF?logo=kaggle)](https://www.kaggle.com/uliabraham)
-[![Portfolio](https://img.shields.io/badge/Portfolio-lukasezequiel55-black?logo=google-chrome)](https://portafoliocv.lukasezequiel55.com)
+[![Portafolio](https://img.shields.io/badge/Portafolio-lukasezequiel55-black?logo=google-chrome)](https://portafoliocv.lukasezequiel55.com)
